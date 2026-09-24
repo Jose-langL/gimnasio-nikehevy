@@ -1,0 +1,26 @@
+{
+  "name": "gimnasio-nikehevy",
+  "version": "1.0.0",
+  "description": "proyecto para un gimnasio con nodej.js y base de datos",
+  "keywords": [
+    "node.js",
+    "javascript",
+    "mysql"
+  ],
+  "license": "ISC",
+  "author": "Jose-langL",
+  "type": "module",
+  "main": "src/app.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "mysql2": "^3.24.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
