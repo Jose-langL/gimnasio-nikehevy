@@ -7,10 +7,9 @@ class PlanAlimenticio {
     fecha_inicio;
     fecha_fin;
 
-    constructor(id, id_contrato, nombre, fecha_inicio, fecha_fin) {
+    constructor(id_contrato, nombre, fecha_inicio, fecha_fin) {
         validatorPlanAlimenticio(id_contrato, nombre, fecha_inicio, fecha_fin);
-        
-        this.#id = id;
+
         this.id_contrato = id_contrato;
         this.nombre = nombre;
         this.fecha_inicio = fecha_inicio;

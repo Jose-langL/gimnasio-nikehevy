@@ -1,7 +1,11 @@
-export function validarCliente(nombre, email, telefono, estado, fecha_registro) {
+export function validarCliente(nombre, apellido, email, telefono, estado, fecha_registro) {
 
     if (nombre.trim() === "") {
             throw new Error("El nombre no puede estar vacio");
+    }
+
+    if (apellido.trim() === "") {
+            throw new Error("El apellido no puede estar vacio");
     }
   
     if (!email.includes("@") || !email.includes(".")) {
