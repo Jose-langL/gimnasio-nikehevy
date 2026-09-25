@@ -1,3 +1,5 @@
+import { validarCliente } from '../validators/ClienteValidator.js';
+
 class Cliente {
     #id;
     nombre;
@@ -8,6 +10,9 @@ class Cliente {
     fecha_registro;
 
     constructor(id, nombre, apellido, email, telefono, estado, fecha_registro) {
+        
+        validarCliente(nombre, email, telefono, estado, fecha_registro);
+
         this.#id = id;
         this.nombre = nombre;
         this.apellido = apellido;

@@ -1,3 +1,5 @@
+import { validatorContrato } from "../validators/ContratoValidator.js";
+
 class Contrato {
     #id;
     id_cliente;
@@ -10,6 +12,8 @@ class Contrato {
     id_estado;
     
     constructor(id, id_cliente, id_plan, condiciones, duracion, precio, fecha_inicio, fecha_fin, id_estado) {
+        validatorContrato(id_cliente, id_plan, condiciones, duracion, precio, fecha_inicio, fecha_fin, id_estado);
+
         this.#id = id;
         this.id_cliente = id_cliente;
         this.id_plan = id_plan;

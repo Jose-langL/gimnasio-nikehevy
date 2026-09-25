@@ -1,19 +1,23 @@
-class Alimento{
-    #id; 
-    nombre; 
-    id_categoria; 
-    calorias; 
-    proteinas; 
-    carbohidratos; 
-    grasas; 
+import { validarAlimento } from "../validators/AlimentoValidator.js";
 
-    constructor(id, nombre, id_categoria, calorias, proteinas, carbohidratos, grasas){
+class Alimento {
+    #id;
+    nombre;
+    id_categoria;
+    calorias;
+    proteinas;
+    carbohidratos;
+    grasas;
+
+    constructor(id, nombre, id_categoria, calorias, proteinas, carbohidratos, grasas) {
+        validarAlimento(nombre, id_categoria, calorias, proteinas, grasas)
+
         this.#id = id;
-        this.nombre = nombre; 
+        this.nombre = nombre;
         this.id_categoria = id_categoria;
-        this.calorias = calorias; 
+        this.calorias = calorias;
         this.proteinas = proteinas;
-        this.carbohidratos = carbohidratos; 
+        this.carbohidratos = carbohidratos;
         this.grasas = grasas;
     }
 
@@ -21,6 +25,5 @@ class Alimento{
         return this.#id;
     }
 }
+
 export default Alimento;
-
-

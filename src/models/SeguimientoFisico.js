@@ -1,3 +1,5 @@
+import { validatorSeguimientoFisico  } from "../validators/SeguimientoFisicoVañidator.js";
+
 class SeguimientoFisico {
     #id;
     id_contrato;
@@ -7,6 +9,8 @@ class SeguimientoFisico {
     comentarios;
 
     constructor(id, id_contrato, fecha, peso, grasa_corporal, comentarios) {
+        validatorSeguimientoFisico(id_contrato, fecha, peso, grasa_corporal)
+        
         this.#id = id;
         this.id_contrato = id_contrato;
         this.fecha = fecha;
