@@ -1,4 +1,4 @@
-import { validatorSeguimientoFisico  } from "../validators/SeguimientoFisicoVañidator.js";
+import { validatorSeguimientoFisico  } from "../validators/SeguimientoFisicoValidator.js";
 
 class SeguimientoFisico {
     #id;
