@@ -175,13 +175,3 @@ async function eliminarCliente() {
         console.log(chalk.red(`\nError: ${error.message}`));
     }
 }
-
-async function asignarPlanCliente() {
-    console.log(chalk.yellow('\nAsignar plan a cliente — pendiente (siguiente sprint).\n'));
-}
-
-async function pausar() {
-    await inquirer.prompt([
-        { type: 'input', name: '_', message: chalk.gray('Presiona ENTER para continuar...') }
-    ]);
-}
