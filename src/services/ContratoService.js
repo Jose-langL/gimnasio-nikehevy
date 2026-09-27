@@ -60,6 +60,94 @@ class ContratoService {
             connection.release();
         }
     }
+
+    async cancelarPlan(id_contrato) {
+        const connection = await pool.getConnection();
+        try {
+            await connection.beginTransaction();
+
+            const [contratoRows] = await connection.query(
+                'SELECT id_estado FROM contrato WHERE id = ?',
+                [id_contrato]
+            );
+
+            if (contratoRows.length === 0) {
+                throw new Error("El contrato no existe");
+            }
+
+            if (contratoRows[0].id_estado !== 1) {
+                throw new Error("Solo se pueden cancelar contratos activos");
+            }
+
+            await connection.query(
+                'DELETE FROM seguimiento_fisico WHERE id_contrato = ?',
+                [id_contrato]
+            );
+
+            await connection.query(
+                'DELETE FROM planes_alimenticios WHERE id_contrato = ?',
+                [id_contrato]
+            );
+
+            await connection.query(
+                'UPDATE contrato SET id_estado = ? WHERE id = ?',
+                [4, id_contrato]
+            );
+
+            await connection.commit();
+            return true;
+
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
+        }
+    }
+
+    async renovarPlan(id_contrato, plan) {
+        const contratoActual = await this.buscarPorId(id_contrato);
+
+        if (!contratoActual) {
+            throw new Error("El contrato no existe");
+        }
+
+        if (contratoActual.id_estado !== 1) {
+            throw new Error("Solo se pueden renovar contratos activos");
+        }
+
+        const hoy = new Date();
+        const diasTotales = plan.duracion * 7;
+        const nuevaFechaFinObjeto = new Date(hoy);
+        nuevaFechaFinObjeto.setDate(nuevaFechaFinObjeto.getDate() + diasTotales);
+        const nuevaFechaFin = nuevaFechaFinObjeto.toISOString().split("T")[0];
+
+        const [resultado] = await pool.query(
+            'UPDATE contrato SET fecha_fin = ?, id_estado = ? WHERE id = ?',
+            [nuevaFechaFin, 2, id_contrato]
+        );
+
+        return true;
+    }
+
+    async finalizarPlan(id_contrato) {
+        const contratoActual = await this.buscarPorId(id_contrato);
+
+        if (!contratoActual) {
+            throw new Error("El contrato no existe");
+        }
+
+        if (contratoActual.id_estado !== 1) {
+            throw new Error("Solo se pueden finalizar contratos activos");
+        }
+
+        const [resultado] = await pool.query(
+            'UPDATE contrato SET id_estado = ? WHERE id = ?',
+            [5, id_contrato]
+        );
+
+        return true;
+    }
 }
 
 export default ContratoService;
