@@ -15,10 +15,14 @@
     "doc": "docs"
   },
   "scripts": {
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
   },
   "dependencies": {
+    "chalk": "^6.0.1",
     "dotenv": "^18.0.3",
+    "figlet": "^1.11.4",
+    "inquirer": "^14.2.2",
     "mysql2": "^3.24.4"
   },
   "devDependencies": {
