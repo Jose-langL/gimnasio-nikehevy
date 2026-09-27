@@ -7,9 +7,10 @@ class ConsumoAlimento {
     fecha;
     cantidad;
 
-    constructor(id_plan_alimenticio, id_alimento, fecha, cantidad) {
+    constructor(id, id_plan_alimenticio, id_alimento, fecha, cantidad) {
         validatorConsumoAlimento(id_plan_alimenticio, id_alimento, fecha, cantidad);
 
+        this.#id = id; 
         this.id_plan_alimenticio = id_plan_alimenticio;
         this.id_alimento = id_alimento;
         this.fecha = fecha;

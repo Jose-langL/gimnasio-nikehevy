@@ -1,4 +1,4 @@
-export function validarAlimento (nombre, id_categoria, calorias, proteinas, grasas){
+export function validarAlimento (nombre, id_categoria, calorias, proteinas, carbohidratos, grasas){
     
         if (!nombre || nombre.trim() === "") {
             throw new Error("El nombre del alimento no puede estar vacio");

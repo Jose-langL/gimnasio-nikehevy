@@ -9,9 +9,10 @@ class Alimento {
     carbohidratos;
     grasas;
 
-    constructor( nombre, id_categoria, calorias, proteinas, carbohidratos, grasas) {
-        validarAlimento(nombre, id_categoria, calorias, proteinas, grasas)
+    constructor(id,  nombre, id_categoria, calorias, proteinas, carbohidratos, grasas) {
+        validarAlimento(nombre, id_categoria, calorias, proteinas, carbohidratos,  grasas,)
 
+        this.#id = id;
         this.nombre = nombre;
         this.id_categoria = id_categoria;
         this.calorias = calorias;
