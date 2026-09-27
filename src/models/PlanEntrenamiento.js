@@ -21,7 +21,7 @@ class PlanEntrenamiento {
         this.precio = precio;
     }
 
-    get Id() {
+    get id() {
         return this.#id;
     }
 }
