@@ -1,3 +1,4 @@
+
 # Gimnasio NikeHevy
 
 Aplicación de línea de comandos (CLI) desarrollada en **Node.js** para la gestión integral de un gimnasio o entrenador personal. Permite administrar clientes, planes de entrenamiento, seguimiento físico, nutrición, contratos y finanzas, todo desde una interfaz de consola interactiva con persistencia en **MySQL**.
