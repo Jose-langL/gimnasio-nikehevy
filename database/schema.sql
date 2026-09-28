@@ -19,6 +19,7 @@ CREATE TABLE nivel_plan_entrenamiento (
     nivel VARCHAR(20) NOT NULL UNIQUE
 );
 
+
 -- PLANES DE ENTRENAMIENTO
 CREATE TABLE planes_entrenamiento (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -63,11 +64,12 @@ CREATE TABLE seguimiento_fisico (
     peso DECIMAL(5,2) NOT NULL,
     grasa_corporal DECIMAL(5,2),
     comentarios TEXT,
-
+	foto VARCHAR(255) NULL,
+    
     FOREIGN KEY (id_contrato) REFERENCES contrato(id) ON DELETE CASCADE
 );
 
--- MEDIDAS
+-- MEDIDAS 
 CREATE TABLE medidas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_seguimiento_fisico INT NOT NULL,
@@ -119,7 +121,7 @@ CREATE TABLE consumo_alimento (
     FOREIGN KEY (id_alimento) REFERENCES alimento(id) ON DELETE RESTRICT
 );
 
--- GESTION FINANCIERA
+-- GESTION FINANCIERA 
 CREATE TABLE gestion_financiera (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_cliente INT,
@@ -130,3 +132,27 @@ CREATE TABLE gestion_financiera (
 
     FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE SET NULL
 );
+
+-- Niveles del plan entrenamiento 
+INSERT INTO nivel_plan_entrenamiento (nivel) VALUES
+('basico'),
+('intermedio'),
+('avanzado');
+
+-- Categorias de Alimentos
+INSERT INTO categoria_alimentos (categoria) VALUES
+('Carnes'),
+('Granos'),
+('Frutas'),
+('Verduras'),
+('Lácteos'),
+('Bebidas'),
+('Suplementos'),
+('Snacks');
+
+-- Estados de contrato
+INSERT INTO estado_contrato (estado) VALUES
+( 'activo'),
+( 'renovado'),
+( 'cancelado'),
+('finalizado');

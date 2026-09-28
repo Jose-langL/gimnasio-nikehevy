@@ -91,7 +91,7 @@ class ContratoService {
 
             await connection.query(
                 'UPDATE contrato SET id_estado = ? WHERE id = ?',
-                [4, id_contrato]
+                [3, id_contrato]
             );
 
             await connection.commit();
@@ -143,7 +143,7 @@ class ContratoService {
 
         const [resultado] = await pool.query(
             'UPDATE contrato SET id_estado = ? WHERE id = ?',
-            [5, id_contrato]
+            [4, id_contrato]
         );
 
         return true;

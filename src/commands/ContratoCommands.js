@@ -19,8 +19,8 @@ const contratoService = new ContratoService(contratoRepository, planService, con
 const Estados = {
     1: 'Activo',
     2: 'Renovado',
-    4: 'Cancelado',
-    5: 'Finalizado'
+    3: 'Cancelado',
+    4: 'Finalizado'
 };
 
 function fechaBonita(fecha) {
@@ -135,8 +135,8 @@ async function verDetalleContrato() {
         console.log(chalk.white(`Condiciones: ${ct.condiciones}`));
         console.log(chalk.white(`Duracion:    ${ct.duracion} semanas`));
         console.log(chalk.white(`Precio:      ${ct.precio}`));
-        console.log(chalk.white(`Inicio:      ${ct.fecha_inicio}`));
-        console.log(chalk.white(`Fin:         ${ct.fecha_fin}`));
+        console.log(chalk.white(`Inicio:      ${fechaBonita(ct.fecha_inicio)}`));
+        console.log(chalk.white(`Fin:         ${fechaBonita(ct.fecha_fin)}`));
         console.log(chalk.white(`Estado:      ${estado}`));
     } catch (error) {
         console.log(chalk.red(`\nError: ${error.message}`));

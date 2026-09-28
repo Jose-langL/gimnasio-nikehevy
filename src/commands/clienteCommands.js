@@ -13,7 +13,6 @@ const SubmenuClientes = [
     { name: 'Listar clientes',      value: 'listar' },
     { name: 'Actualizar cliente',   value: 'actualizar' },
     { name: 'Eliminar cliente',     value: 'eliminar' },
-    { name: 'Asignar plan',         value: 'asignarPlan' },
 
     new inquirer.Separator(),
     { name: '<- Volver al menu principal', value: 'volver' }
@@ -48,9 +47,6 @@ export async function ClienteMenu() {
                 break;
             case 'eliminar':
                 await eliminarCliente();
-                break;
-            case 'asignarPlan':
-                await asignarPlanCliente();
                 break;
             case 'volver':
                 volver = true;
@@ -174,4 +170,10 @@ async function eliminarCliente() {
     } catch (error) {
         console.log(chalk.red(`\nError: ${error.message}`));
     }
+}
+
+async function pausar() {
+    await inquirer.prompt([
+        { type: 'input', name: '_', message: chalk.gray('Presiona ENTER para continuar...') }
+    ]);
 }
