@@ -44,7 +44,7 @@ Toda la documentación detallada está en la carpeta [`docs/`](./docs/):
 
 ---
 
-## 📋 Requisitos previos
+##  Requisitos previos
 Antes de ejecutar el proyecto, asegúrate de tener instalado:
 
 - **Node.js** v18 o superior → [descargar](https://nodejs.org/)
@@ -59,6 +59,8 @@ npm -v
 mysql --version
 ```
 ---
+## Tablas Base de datos
+![Normalizacion](docs/Normalizacion.png)
 
 ## Instalación y uso
 

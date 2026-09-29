@@ -1,5 +1,6 @@
 CREATE DATABASE IF NOT EXISTS gimnasio_nikehevy;
 
+
 USE gimnasio_nikehevy;
 
 -- CLIENTES
@@ -135,9 +136,10 @@ CREATE TABLE gestion_financiera (
 
 -- Niveles del plan entrenamiento 
 INSERT INTO nivel_plan_entrenamiento (nivel) VALUES
-('basico'),
-('intermedio'),
-('avanzado');
+('Principiante'),
+('Intermedio'),
+('Avanzado');
+
 
 -- Categorias de Alimentos
 INSERT INTO categoria_alimentos (categoria) VALUES
@@ -156,3 +158,10 @@ INSERT INTO estado_contrato (estado) VALUES
 ( 'renovado'),
 ( 'cancelado'),
 ('finalizado');
+
+-- usario y permisos
+CREATE USER 'entrenador'@'localhost' IDENTIFIED BY 'NikeHevy2026!';
+
+GRANT ALL PRIVILEGES ON gimnasio_nikehevy.* TO 'entrenador'@'localhost';
+FLUSH PRIVILEGES;
+
