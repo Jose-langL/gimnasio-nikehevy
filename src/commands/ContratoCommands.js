@@ -35,11 +35,12 @@ function fechaBonita(fecha) {
 }
 
 const SubmenuContratos = [
-    { name: 'Listar contratos',          value: 'listar' },
+    { name: 'Listar contratos',           value: 'listar' },
     { name: 'Ver detalle de un contrato', value: 'detalle' },
     { name: 'Cancelar contrato',          value: 'cancelar' },
     { name: 'Renovar contrato',           value: 'renovar' },
     { name: 'Finalizar contrato',         value: 'finalizar' },
+    { name: 'Eliminar contrato',          value: 'eliminar' },
 
     new inquirer.Separator(),
     { name: '<- Volver al menu principal', value: 'volver' }
@@ -68,6 +69,7 @@ export async function ContratoMenu() {
             case 'cancelar':   await cancelarContrato();   break;
             case 'renovar':    await renovarContrato();    break;
             case 'finalizar':  await finalizarContrato();  break;
+            case 'eliminar':   await eliminarContrato();   break;
             case 'volver':     volver = true;              break;
         }
 
@@ -261,6 +263,55 @@ async function finalizarContrato() {
 
         await contratoService.finalizarPlan(id);
         console.log(chalk.green(`\nContrato #${id} finalizado correctamente.`));
+    } catch (error) {
+        console.log(chalk.red(`\nError: ${error.message}`));
+    }
+}
+
+async function eliminarContrato() {
+    console.log(chalk.cyan('\nEliminar contrato\n'));
+
+    const { id } = await inquirer.prompt([
+        { type: 'input', name: 'id', message: 'ID del contrato a eliminar:' }
+    ]);
+
+    try {
+        const ct = await contratoService.buscarPorId(id);
+        if (!ct) {
+            console.log(chalk.red('\nContrato no encontrado.'));
+            return;
+        }
+
+        const cliente = await clienteService.buscarPorId(ct.id_cliente);
+        const plan = await planService.buscarPorId(ct.id_plan);
+        const nombreCliente = cliente ? `${cliente.nombre} ${cliente.apellido}` : 'Desconocido';
+        const nombrePlan = plan ? plan.nombre : 'Desconocido';
+        const estado = Estados[ct.id_estado] || 'Desconocido';
+
+        console.log(chalk.yellow(`\nVas a eliminar el siguiente contrato:`));
+        console.log(chalk.white(`  ID:      ${ct.id}`));
+        console.log(chalk.white(`  Cliente: ${nombreCliente}`));
+        console.log(chalk.white(`  Plan:    ${nombrePlan}`));
+        console.log(chalk.white(`  Estado:  ${estado}`));
+
+        console.log(chalk.gray(`   Se borraran tambien: seguimiento fisico, medidas, planes alimenticios y consumos asociados.`));
+
+        const { confirmar } = await inquirer.prompt([
+            {
+                type: 'confirm',
+                name: 'confirmar',
+                message: `¿Eliminar DEFINITIVAMENTE el contrato #${id}?`,
+                default: false
+            }
+        ]);
+
+        if (!confirmar) {
+            console.log(chalk.yellow('\n Operacion cancelada.'));
+            return;
+        }
+
+        await contratoService.eliminar(id);
+        console.log(chalk.green(`\nContrato #${id} eliminado correctamente.`));
     } catch (error) {
         console.log(chalk.red(`\nError: ${error.message}`));
     }
