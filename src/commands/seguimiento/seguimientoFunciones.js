@@ -13,6 +13,13 @@ import ClienteRepository from '../../repositories/ClienteRepository.js';
 import ContratoFactory from '../../factories/ContratoFactory.js';
 import SeguimientoFisico from '../../models/SeguimientoFisico.js';
 import { obtenerFechaHoy, formatearFecha } from '../../utils/fechaUtils.js';
+// plan alimenticion y alimento diario
+import PlanAlimenticionService from '../../services/PlanAlimenticioService.js';
+import PlanAlimenticioRepository from '../../repositories/PlanAlimenticioRepository.js';
+import ConsumoAlimentoService from '../../services/ConsumoAlimentoService.js';
+import ConsumoAlimentoRepository from '../../services/ConsumoAlimentoService.js';
+
+
 
 // --- Instancias de repositories ---
 const segRepository = new SeguimientoFisicoRepository();
@@ -20,6 +27,8 @@ const medidasRepository = new MedidasRepository();
 const contratoRepository = new ContratoRepository();
 const planRepository = new PlanEntrenamientoRepository();
 const clienteRepository = new ClienteRepository();
+const planAlimentacionRepository = new PlanAlimenticioRepository();
+const consumoAlimentoRepository = new ConsumoAlimentoRepository();
 
 // --- Instancias de services ---
 const medidasService = new MedidasService(medidasRepository);
@@ -28,6 +37,8 @@ const planService = new PlanEntrenamientoService(planRepository);
 const clienteService = new ClienteService(clienteRepository);
 const contratoFactory = new ContratoFactory();
 const contratoService = new ContratoService(contratoRepository, planService, contratoFactory);
+const planAlimentacionService = new PlanAlimenticionService(planAlimentacionRepository);
+const consumoAlimentoService = new ConsumoAlimentoService(consumoAlimentoRepository); 
 
 export async function registrarSeguimiento() {
     console.log(chalk.cyan('\nNuevo avance\n'));
@@ -178,6 +189,29 @@ export async function eliminarSeguimiento() {
 
         await segService.eliminar(id);
         console.log(chalk.green(`\nSeguimiento #${id} eliminado correctamente.`));
+    } catch (error) {
+        console.log(chalk.red(`\nError: ${error.message}`));
+    }
+}
+
+export async function clienteJson(){
+    console.log(chalk.cyan('\nExportar cliente a JSON\n'));
+
+    const { id_contrato } = await inquirer.prompt([
+        { type: 'input', name: 'id_contrato', message: 'ID del contrato que se quiere exportar :' }
+    ]);
+
+    try {
+        const contrato = await contratoService.buscarPorId(id_contrato);
+        if (!contrato) {
+            console.log(chalk.red('\nContrato no encontrado.'));
+            return;
+        }
+        const cliente = await clienteService.buscarPorId(contrato.id_cliente);
+        const nombreCliente = cliente ? `${cliente.nombre} ${cliente.apellido}` : 'Desconocido';
+        console.log(chalk.gray(`Cliente del contrato: ${nombreCliente}\n`));
+
+        console.log(chalk.green(`\n cliente exportado correctamente.`));
     } catch (error) {
         console.log(chalk.red(`\nError: ${error.message}`));
     }

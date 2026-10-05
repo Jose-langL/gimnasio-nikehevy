@@ -3,13 +3,15 @@ import chalk from 'chalk';
 import {
     registrarSeguimiento,
     verHistorial,
-    eliminarSeguimiento
+    eliminarSeguimiento,
+    clienteJson
 } from './seguimientoFunciones.js';
 
 const SubmenuSeguimiento = [
     { name: 'Registrar nuevo avance',       value: 'crear' },
     { name: 'Ver historial con medidas',    value: 'historial' },
     { name: 'Eliminar un registro',         value: 'eliminar' },
+    { name: 'Exportar Cliente a JSON',      value: 'exportar' },
 
     new inquirer.Separator(),
     { name: '<- Volver al menu principal',  value: 'volver' }
@@ -36,6 +38,7 @@ export async function SeguimientoMenu() {
             case 'crear':      await registrarSeguimiento(); break;
             case 'historial':  await verHistorial();          break;
             case 'eliminar':   await eliminarSeguimiento();   break;
+            case 'exportar':   await clienteJson();           break;
             case 'volver':     volver = true;                 break;
         }
 
