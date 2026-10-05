@@ -211,6 +211,7 @@ export async function clienteJson(){
         const cliente = await clienteService.buscarPorId(contrato.id_cliente);
         const plan = await planService.buscarPorId(contrato.id_plan);
         const planAlimenticio = await PlanAlimenticioService.listarporContrato(contrato.id);
+        
         const consumoAlimento = await consumoAlimentoService.listarPorPlan(planAlimenticio.Id);
         const nombreCliente = cliente ? `${cliente.nombre} ${cliente.apellido}` : 'Desconocido';
         const nombrePlan = plan ? plan.nombre : 'Desconocido';
