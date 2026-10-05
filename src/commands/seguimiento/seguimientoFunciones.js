@@ -1,5 +1,8 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import fs from 'fs';
+import path from 'path';
+
 import SeguimientoFisicoService from '../../services/SeguimientoFisicoService.js';
 import SeguimientoFisicoRepository from '../../repositories/SeguimientoFisicoRepository.js';
 import MedidasService from '../../services/MedidasService.js';
@@ -13,13 +16,14 @@ import ClienteRepository from '../../repositories/ClienteRepository.js';
 import ContratoFactory from '../../factories/ContratoFactory.js';
 import SeguimientoFisico from '../../models/SeguimientoFisico.js';
 import { obtenerFechaHoy, formatearFecha } from '../../utils/fechaUtils.js';
-// plan alimenticion y alimento diario
-import PlanAlimenticionService from '../../services/PlanAlimenticioService.js';
+
+// Plan alimenticio, consumo y alimento
+import PlanAlimenticioService from '../../services/PlanAlimenticioService.js';
 import PlanAlimenticioRepository from '../../repositories/PlanAlimenticioRepository.js';
 import ConsumoAlimentoService from '../../services/ConsumoAlimentoService.js';
-import ConsumoAlimentoRepository from '../../services/ConsumoAlimentoService.js';
-
-
+import ConsumoAlimentoRepository from '../../repositories/ConsumoAlimentoRepository.js';
+import AlimentoService from '../../services/AlimentoService.js';
+import AlimentoRepository from '../../repositories/AlimentoRepository.js';
 
 // --- Instancias de repositories ---
 const segRepository = new SeguimientoFisicoRepository();
@@ -27,8 +31,9 @@ const medidasRepository = new MedidasRepository();
 const contratoRepository = new ContratoRepository();
 const planRepository = new PlanEntrenamientoRepository();
 const clienteRepository = new ClienteRepository();
-const planAlimentacionRepository = new PlanAlimenticioRepository();
+const planAlimenticioRepository = new PlanAlimenticioRepository();
 const consumoAlimentoRepository = new ConsumoAlimentoRepository();
+const alimentoRepository = new AlimentoRepository();
 
 // --- Instancias de services ---
 const medidasService = new MedidasService(medidasRepository);
@@ -37,8 +42,9 @@ const planService = new PlanEntrenamientoService(planRepository);
 const clienteService = new ClienteService(clienteRepository);
 const contratoFactory = new ContratoFactory();
 const contratoService = new ContratoService(contratoRepository, planService, contratoFactory);
-const planAlimentacionService = new PlanAlimenticionService(planAlimentacionRepository);
-const consumoAlimentoService = new ConsumoAlimentoService(consumoAlimentoRepository); 
+const planAlimenticioService = new PlanAlimenticioService(planAlimenticioRepository);
+const alimentoService = new AlimentoService(alimentoRepository);
+const consumoAlimentoService = new ConsumoAlimentoService(consumoAlimentoRepository, alimentoService);
 
 export async function registrarSeguimiento() {
     console.log(chalk.cyan('\nNuevo avance\n'));
@@ -194,7 +200,8 @@ export async function eliminarSeguimiento() {
     }
 }
 
-export async function clienteJson(){
+// Función para exportar cliente a JSON
+export async function clienteJson() {
     console.log(chalk.cyan('\nExportar cliente a JSON\n'));
 
     const { id_contrato } = await inquirer.prompt([
@@ -219,29 +226,29 @@ export async function clienteJson(){
         console.log(chalk.bold.white(`\nCliente: ${nombreCliente} | Plan: ${nombrePlan}\n`));
 
         const registros = await segService.obtenerProgreso(id_contrato);
+        const planesAlimenticios = await planAlimenticioService.listarPorContrato(contrato.id);
 
-        if (registros.length === 0) {
-            console.log(chalk.yellow('No hay registros de seguimiento para este contrato.'));
-            return;
-        }
+        console.log(chalk.bold.white(`\nCliente: ${cliente.nombre} ${cliente.apellido}\n`));
 
-        registros.forEach((seg) => {
-            console.log(chalk.bold.cyan(`\n=== SEGUIMIENTO #${seg.id} (${formatearFecha(seg.fecha)}) ===`));
-            console.log(chalk.white(`Peso:        ${seg.peso} kg`));
-            console.log(chalk.white(`Grasa:       ${seg.grasa_corporal !== null ? seg.grasa_corporal + '%' : 'No registrada'}`));
-            console.log(chalk.white(`Comentarios: ${seg.comentarios || '-'}`));
-            console.log(chalk.white(`Foto:        ${seg.foto || '-'}`));
+        const seguimiento = registros.map((seg) => ({
+            fecha: formatearFecha(seg.fecha),
+            peso_kg: seg.peso,
+            grasa_corporal: seg.grasa_corporal,
+            comentarios: seg.comentarios,
+            foto: seg.foto,
+            medidas: (seg.medidas || []).map((m) => ({ tipo: m.tipo_medida, valor: m.valor, unidad: 'cm' }))
+        }));
 
-            if (seg.medidas && seg.medidas.length > 0) {
-                console.log(chalk.gray('Medidas:'));
-                seg.medidas.forEach((m) => {
-                    console.log(chalk.gray(`   - ${m.tipo_medida}: ${m.valor} cm`));
-                });
-            } else {
-                console.log(chalk.gray('Sin medidas registradas.'));
-            }
-        });
+        const planesData = [];
+        for (const planAli of planesAlimenticios) {
+            const consumos = await consumoAlimentoService.listarPorPlan(planAli.id);
+            const porDia = {};
+
+            for (const c of consumos) {
+                const alimento = await alimentoService.buscarPorId(c.id_alimento);
+                if (!alimento) continue;
+    }}
     } catch (error) {
-        console.log(chalk.red(`\nError: ${error.message}`));
+        console.log(chalk.red(`\n Error: ${error.message}`));
     }
 }
