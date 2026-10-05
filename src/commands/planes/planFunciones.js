@@ -1,13 +1,13 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import PlanEntrenamiento from '../models/PlanEntrenamiento.js';
-import PlanEntrenamientoService from '../services/PlanEntrenamientoService.js';
-import PlanEntrenamientoRepository from '../repositories/PlanEntrenamientoRepository.js';
-import ClienteService from '../services/ClienteService.js';
-import ClienteRepository from '../repositories/ClienteRepository.js';
-import ContratoService from '../services/ContratoService.js';
-import ContratoRepository from '../repositories/ContratoRepository.js';
-import ContratoFactory from '../factories/ContratoFactory.js';
+import PlanEntrenamiento from '../../models/PlanEntrenamiento.js';
+import PlanEntrenamientoService from '../../services/PlanEntrenamientoService.js';
+import PlanEntrenamientoRepository from '../../repositories/PlanEntrenamientoRepository.js';
+import ClienteService from '../../services/ClienteService.js';
+import ClienteRepository from '../../repositories/ClienteRepository.js';
+import ContratoService from '../../services/ContratoService.js';
+import ContratoRepository from '../../repositories/ContratoRepository.js';
+import ContratoFactory from '../../factories/ContratoFactory.js';
 
 const planRepository = new PlanEntrenamientoRepository();
 const planService = new PlanEntrenamientoService(planRepository);
@@ -25,61 +25,7 @@ const Niveles = [
     { name: 'Avanzado',     value: 3 }
 ];
 
-
-const SubmenuPlanes = [
-    { name: 'Crear plan',              value: 'crear' },
-    { name: 'Listar planes',           value: 'listar' },
-    { name: 'Actualizar plan',         value: 'actualizar' },
-    { name: 'Eliminar plan',           value: 'eliminar' },
-    { name: 'Asignar plan a cliente',  value: 'asignar' },
-
-    new inquirer.Separator(),
-    { name: '<- Volver al menu principal', value: 'volver' }
-];
-
-export async function PlanEntrenamientoMenu() {
-    let volver = false;
-
-    while (!volver) {
-        console.clear();
-        console.log(chalk.bold.yellow('\n=== GESTION PLANES DE ENTRENAMIENTO ==='));
-
-        const { opcion } = await inquirer.prompt([
-            {
-                type: 'select',
-                name: 'opcion',
-                message: 'Selecciona una opcion:',
-                choices: SubmenuPlanes,
-                loop: false
-            }
-        ]);
-
-        switch (opcion) {
-            case 'crear':
-                await crearPlan(); 
-                break;
-            case 'listar':    
-                await listarPlanes();      
-                break;
-            case 'actualizar': 
-                await actualizarPlan();    
-                break;
-            case 'eliminar':   
-                await eliminarPlan();      
-                break;
-            case 'asignar':    
-                await asignarPlanCliente(); 
-                break;
-            case 'volver':     
-                volver = true;             
-                break;
-        }
-
-        if (!volver) await pausar();
-    }
-}
-
-async function crearPlan() {
+export async function crearPlan() {
     console.log(chalk.cyan('\nNuevo plan de entrenamiento\n'));
 
     const datos = await inquirer.prompt([
@@ -109,7 +55,7 @@ async function crearPlan() {
     }
 }
 
-async function listarPlanes() {
+export async function listarPlanes() {
     console.log(chalk.cyan('\nListado de planes\n'));
 
     try {
@@ -132,7 +78,7 @@ async function listarPlanes() {
     }
 }
 
-async function actualizarPlan() {
+export async function actualizarPlan() {
     console.log(chalk.cyan('\nActualizar plan\n'));
 
     const { id } = await inquirer.prompt([
@@ -172,7 +118,7 @@ async function actualizarPlan() {
     }
 }
 
-async function eliminarPlan() {
+export async function eliminarPlan() {
     console.log(chalk.cyan('\nEliminar plan\n'));
 
     const { id } = await inquirer.prompt([
@@ -216,7 +162,7 @@ async function eliminarPlan() {
     }
 }
 
-async function asignarPlanCliente() {
+export async function asignarPlanCliente() {
     console.log(chalk.cyan('\nAsignar plan a cliente\n'));
 
     try {
@@ -259,10 +205,4 @@ async function asignarPlanCliente() {
     } catch (error) {
         console.log(chalk.red(`\nError: ${error.message}`));
     }
-}
-
-async function pausar() {
-    await inquirer.prompt([
-        { type: 'input', name: '_', message: chalk.gray('Presiona ENTER para continuar...') }
-    ]);
 }

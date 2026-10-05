@@ -1,18 +1,18 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import SeguimientoFisicoService from '../services/SeguimientoFisicoService.js';
-import SeguimientoFisicoRepository from '../repositories/SeguimientoFisicoRepository.js';
-import MedidasService from '../services/MedidasService.js';
-import MedidasRepository from '../repositories/MedidasRepository.js';
-import ContratoService from '../services/ContratoService.js';
-import ContratoRepository from '../repositories/ContratoRepository.js';
-import PlanEntrenamientoService from '../services/PlanEntrenamientoService.js';
-import PlanEntrenamientoRepository from '../repositories/PlanEntrenamientoRepository.js';
-import ClienteService from '../services/ClienteService.js';
-import ClienteRepository from '../repositories/ClienteRepository.js';
-import ContratoFactory from '../factories/ContratoFactory.js';
-import SeguimientoFisico from '../models/SeguimientoFisico.js';
-import { obtenerFechaHoy } from '../utils/fechaUtils.js';
+import SeguimientoFisicoService from '../../services/SeguimientoFisicoService.js';
+import SeguimientoFisicoRepository from '../../repositories/SeguimientoFisicoRepository.js';
+import MedidasService from '../../services/MedidasService.js';
+import MedidasRepository from '../../repositories/MedidasRepository.js';
+import ContratoService from '../../services/ContratoService.js';
+import ContratoRepository from '../../repositories/ContratoRepository.js';
+import PlanEntrenamientoService from '../../services/PlanEntrenamientoService.js';
+import PlanEntrenamientoRepository from '../../repositories/PlanEntrenamientoRepository.js';
+import ClienteService from '../../services/ClienteService.js';
+import ClienteRepository from '../../repositories/ClienteRepository.js';
+import ContratoFactory from '../../factories/ContratoFactory.js';
+import SeguimientoFisico from '../../models/SeguimientoFisico.js';
+import { obtenerFechaHoy, formatearFecha } from '../../utils/fechaUtils.js';
 
 // --- Instancias de repositories ---
 const segRepository = new SeguimientoFisicoRepository();
@@ -29,44 +29,7 @@ const clienteService = new ClienteService(clienteRepository);
 const contratoFactory = new ContratoFactory();
 const contratoService = new ContratoService(contratoRepository, planService, contratoFactory);
 
-const SubmenuSeguimiento = [
-    { name: 'Registrar nuevo avance',       value: 'crear' },
-    { name: 'Ver historial con medidas',    value: 'historial' },
-    { name: 'Eliminar un registro',         value: 'eliminar' },
-
-    new inquirer.Separator(),
-    { name: '<- Volver al menu principal',  value: 'volver' }
-];
-
-export async function SeguimientoMenu() {
-    let volver = false;
-
-    while (!volver) {
-        console.clear();
-        console.log(chalk.bold.yellow('\n=== SEGUIMIENTO FISICO ==='));
-
-        const { opcion } = await inquirer.prompt([
-            {
-                type: 'select',
-                name: 'opcion',
-                message: 'Selecciona una opcion:',
-                choices: SubmenuSeguimiento,
-                loop: false
-            }
-        ]);
-
-        switch (opcion) {
-            case 'crear':      await registrarSeguimiento(); break;
-            case 'historial':  await verHistorial();          break;
-            case 'eliminar':   await eliminarSeguimiento();   break;
-            case 'volver':     volver = true;                 break;
-        }
-
-        if (!volver) await pausar();
-    }
-}
-
-async function registrarSeguimiento() {
+export async function registrarSeguimiento() {
     console.log(chalk.cyan('\nNuevo avance\n'));
 
     const { id_contrato } = await inquirer.prompt([
@@ -137,7 +100,7 @@ async function registrarSeguimiento() {
     }
 }
 
-async function verHistorial() {
+export async function verHistorial() {
     console.log(chalk.cyan('\nHistorial de seguimiento\n'));
 
     const { id_contrato } = await inquirer.prompt([
@@ -166,7 +129,7 @@ async function verHistorial() {
         }
 
         registros.forEach((seg) => {
-            console.log(chalk.bold.cyan(`\n=== SEGUIMIENTO #${seg.id} (${fechaBonita(seg.fecha)}) ===`));
+            console.log(chalk.bold.cyan(`\n=== SEGUIMIENTO #${seg.id} (${formatearFecha(seg.fecha)}) ===`));
             console.log(chalk.white(`Peso:        ${seg.peso} kg`));
             console.log(chalk.white(`Grasa:       ${seg.grasa_corporal !== null ? seg.grasa_corporal + '%' : 'No registrada'}`));
             console.log(chalk.white(`Comentarios: ${seg.comentarios || '-'}`));
@@ -186,7 +149,7 @@ async function verHistorial() {
     }
 }
 
-async function eliminarSeguimiento() {
+export async function eliminarSeguimiento() {
     console.log(chalk.cyan('\nEliminar seguimiento\n'));
 
     const { id } = await inquirer.prompt([
@@ -218,21 +181,4 @@ async function eliminarSeguimiento() {
     } catch (error) {
         console.log(chalk.red(`\nError: ${error.message}`));
     }
-}
-
-function fechaBonita(fecha) {
-    if (typeof fecha === 'string') {
-        return fecha.split('T')[0];
-    }
-    const d = new Date(fecha);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-async function pausar() {
-    await inquirer.prompt([
-        { type: 'input', name: '_', message: chalk.gray('Presiona ENTER para continuar...') }
-    ]);
 }

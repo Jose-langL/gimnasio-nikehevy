@@ -1,11 +1,11 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import GestionFinanciera from '../models/GestionFinanciera.js';
-import GestionFinancieraService from '../services/GestionFinancieraService.js';
-import GestionFinancieraRepository from '../repositories/GestionFinancieraRepository.js';
-import ClienteService from '../services/ClienteService.js';
-import ClienteRepository from '../repositories/ClienteRepository.js';
-import { obtenerFechaHoy } from '../utils/fechaUtils.js';
+import GestionFinanciera from '../../models/GestionFinanciera.js';
+import GestionFinancieraService from '../../services/GestionFinancieraService.js';
+import GestionFinancieraRepository from '../../repositories/GestionFinancieraRepository.js';
+import ClienteService from '../../services/ClienteService.js';
+import ClienteRepository from '../../repositories/ClienteRepository.js';
+import { obtenerFechaHoy, formatearFecha } from '../../utils/fechaUtils.js';
 
 // --- Repositorios ---
 const finanzasRepository = new GestionFinancieraRepository();
@@ -15,60 +15,7 @@ const clienteRepository = new ClienteRepository();
 const finanzasService = new GestionFinancieraService(finanzasRepository);
 const clienteService = new ClienteService(clienteRepository);
 
-const SubmenuFinanzas = [
-    { name: 'Registrar ingreso',      value: 'ingreso' },
-    { name: 'Registrar egreso',       value: 'egreso' },
-    { name: 'Listar movimientos',     value: 'listar' },
-    { name: 'Balance por cliente',    value: 'balanceCliente' },
-    { name: 'Eliminar movimiento',    value: 'eliminar' },
-
-    new inquirer.Separator(),
-    { name: '<- Volver al menu principal', value: 'volver' }
-];
-
-export async function FinanzasMenu() {
-    let volver = false;
-
-    while (!volver) {
-        console.clear();
-        console.log(chalk.bold.yellow('\n=== GESTION FINANCIERA ==='));
-
-        const { opcion } = await inquirer.prompt([
-            {
-                type: 'select',
-                name: 'opcion',
-                message: 'Selecciona una opcion:',
-                choices: SubmenuFinanzas,
-                loop: false
-            }
-        ]);
-
-        switch (opcion) {
-            case 'ingreso': 
-                await registrarMovimiento('ingreso'); 
-                break;
-            case 'egreso':         
-                await registrarMovimiento('egreso');   
-                break;
-            case 'listar':         
-                await listarMovimientos();            
-                break;
-            case 'balanceCliente': 
-                await verBalancePorCliente();          
-                break;
-            case 'eliminar':      
-                await eliminarMovimiento();            
-                break;
-            case 'volver':         
-                volver = true;                         
-                break;
-        }
-
-        if (!volver) await pausar();
-    }
-}
-
-async function registrarMovimiento(tipo) {
+export async function registrarMovimiento(tipo) {
     console.log(chalk.cyan(`\nRegistrar ${tipo}\n`));
 
     try {
@@ -113,7 +60,7 @@ async function registrarMovimiento(tipo) {
     }
 }
 
-async function listarMovimientos() {
+export async function listarMovimientos() {
     console.log(chalk.cyan('\nListado de movimientos\n'));
 
     try {
@@ -133,7 +80,7 @@ async function listarMovimientos() {
 
             const color = m.tipo === 'ingreso' ? chalk.green : chalk.red;
             const signo = m.tipo === 'ingreso' ? '+' : '-';
-            const fecha = fechaBonita(m.fecha);
+            const fecha = formatearFecha(m.fecha);
 
             console.log(
                 chalk.white(`ID: ${m.id}`) +
@@ -147,7 +94,7 @@ async function listarMovimientos() {
     }
 }
 
-async function verBalancePorCliente() {
+export async function verBalancePorCliente() {
     console.log(chalk.cyan('\nBalance por cliente\n'));
 
     try {
@@ -179,7 +126,7 @@ async function verBalancePorCliente() {
     }
 }
 
-async function eliminarMovimiento() {
+export async function eliminarMovimiento() {
     console.log(chalk.cyan('\nEliminar movimiento\n'));
 
     const { id } = await inquirer.prompt([
@@ -211,21 +158,4 @@ async function eliminarMovimiento() {
     } catch (error) {
         console.log(chalk.red(`\nError: ${error.message}`));
     }
-}
-
-function fechaBonita(fecha) {
-    if (typeof fecha === 'string') {
-        return fecha.split('T')[0];
-    }
-    const d = new Date(fecha);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-async function pausar() {
-    await inquirer.prompt([
-        { type: 'input', name: '_', message: chalk.gray('Presiona ENTER para continuar...') }
-    ]);
 }

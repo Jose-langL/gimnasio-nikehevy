@@ -1,63 +1,14 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import Cliente from '../models/Cliente.js';
-import ClienteService from '../services/ClienteService.js';
-import ClienteRepository from '../repositories/ClienteRepository.js';
-import { obtenerFechaHoy } from '../utils/fechaUtils.js';
+import Cliente from '../../models/Cliente.js';
+import ClienteService from '../../services/ClienteService.js';
+import ClienteRepository from '../../repositories/ClienteRepository.js';
+import { obtenerFechaHoy } from '../../utils/fechaUtils.js';
 
 const clienteRepository = new ClienteRepository();
 const clienteService = new ClienteService(clienteRepository);
 
-const SubmenuClientes = [
-    { name: 'Crear cliente',        value: 'crear' },
-    { name: 'Listar clientes',      value: 'listar' },
-    { name: 'Actualizar cliente',   value: 'actualizar' },
-    { name: 'Eliminar cliente',     value: 'eliminar' },
-
-    new inquirer.Separator(),
-    { name: '<- Volver al menu principal', value: 'volver' }
-];
-
-export async function ClienteMenu() {
-    let volver = false;
-
-    while (!volver) {
-        console.clear();
-        console.log(chalk.bold.yellow('\n=== GESTION CLIENTES ==='));
-
-        const { opcion } = await inquirer.prompt([
-            {
-                type: 'select',
-                name: 'opcion',
-                message: 'Selecciona una opcion:',
-                choices: SubmenuClientes,
-                loop: false
-            }
-        ]);
-
-        switch (opcion) {
-            case 'crear':
-                await crearCliente();
-                break;
-            case 'listar':
-                await listarCliente();
-                break;
-            case 'actualizar':
-                await actualizarCliente();
-                break;
-            case 'eliminar':
-                await eliminarCliente();
-                break;
-            case 'volver':
-                volver = true;
-                break;
-        }
-
-        if (!volver) await pausar();
-    }
-}
-
-async function crearCliente() {
+export async function crearCliente() {
     console.log(chalk.cyan('\nNuevo cliente\n'));
 
     const datos = await inquirer.prompt([
@@ -84,7 +35,7 @@ async function crearCliente() {
     }
 }
 
-async function listarCliente() {
+export async function listarCliente() {
     console.log(chalk.cyan('\nListado de clientes\n'));
 
     try {
@@ -106,7 +57,7 @@ async function listarCliente() {
     }
 }
 
-async function actualizarCliente() {
+export async function actualizarCliente() {
     console.log(chalk.cyan('\nActualizar cliente\n'));
 
     const { id } = await inquirer.prompt([
@@ -144,7 +95,7 @@ async function actualizarCliente() {
     }
 }
 
-async function eliminarCliente() {
+export async function eliminarCliente() {
     console.log(chalk.cyan('\nEliminar cliente\n'));
 
     const { id } = await inquirer.prompt([
@@ -170,10 +121,4 @@ async function eliminarCliente() {
     } catch (error) {
         console.log(chalk.red(`\nError: ${error.message}`));
     }
-}
-
-async function pausar() {
-    await inquirer.prompt([
-        { type: 'input', name: '_', message: chalk.gray('Presiona ENTER para continuar...') }
-    ]);
 }

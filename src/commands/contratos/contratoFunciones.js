@@ -1,12 +1,13 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import ContratoService from '../services/ContratoService.js';
-import ContratoRepository from '../repositories/ContratoRepository.js';
-import PlanEntrenamientoService from '../services/PlanEntrenamientoService.js';
-import PlanEntrenamientoRepository from '../repositories/PlanEntrenamientoRepository.js';
-import ClienteService from '../services/ClienteService.js';
-import ClienteRepository from '../repositories/ClienteRepository.js';
-import ContratoFactory from '../factories/ContratoFactory.js';
+import ContratoService from '../../services/ContratoService.js';
+import ContratoRepository from '../../repositories/ContratoRepository.js';
+import PlanEntrenamientoService from '../../services/PlanEntrenamientoService.js';
+import PlanEntrenamientoRepository from '../../repositories/PlanEntrenamientoRepository.js';
+import ClienteService from '../../services/ClienteService.js';
+import ClienteRepository from '../../repositories/ClienteRepository.js';
+import ContratoFactory from '../../factories/ContratoFactory.js';
+import { formatearFecha } from '../../utils/fechaUtils.js';
 
 const contratoRepository = new ContratoRepository();
 const planRepository = new PlanEntrenamientoRepository();
@@ -23,61 +24,7 @@ const Estados = {
     4: 'Finalizado'
 };
 
-function fechaBonita(fecha) {
-    if (typeof fecha === 'string') {
-        return fecha.split('T')[0];
-    }
-    const d = new Date(fecha);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-const SubmenuContratos = [
-    { name: 'Listar contratos',           value: 'listar' },
-    { name: 'Ver detalle de un contrato', value: 'detalle' },
-    { name: 'Cancelar contrato',          value: 'cancelar' },
-    { name: 'Renovar contrato',           value: 'renovar' },
-    { name: 'Finalizar contrato',         value: 'finalizar' },
-    { name: 'Eliminar contrato',          value: 'eliminar' },
-
-    new inquirer.Separator(),
-    { name: '<- Volver al menu principal', value: 'volver' }
-];
-
-export async function ContratoMenu() {
-    let volver = false;
-
-    while (!volver) {
-        console.clear();
-        console.log(chalk.bold.yellow('\n=== GESTION CONTRATOS ==='));
-
-        const { opcion } = await inquirer.prompt([
-            {
-                type: 'select',
-                name: 'opcion',
-                message: 'Selecciona una opcion:',
-                choices: SubmenuContratos,
-                loop: false
-            }
-        ]);
-
-        switch (opcion) {
-            case 'listar':     await listarContratos();    break;
-            case 'detalle':    await verDetalleContrato(); break;
-            case 'cancelar':   await cancelarContrato();   break;
-            case 'renovar':    await renovarContrato();    break;
-            case 'finalizar':  await finalizarContrato();  break;
-            case 'eliminar':   await eliminarContrato();   break;
-            case 'volver':     volver = true;              break;
-        }
-
-        if (!volver) await pausar();
-    }
-}
-
-async function listarContratos() {
+export async function listarContratos() {
     console.log(chalk.cyan('\nListado de contratos\n'));
 
     try {
@@ -94,8 +41,8 @@ async function listarContratos() {
             const nombreCliente = cliente ? `${cliente.nombre} ${cliente.apellido}` : 'Desconocido';
             const nombrePlan = plan ? plan.nombre : 'Desconocido';
             const estado = Estados[ct.id_estado] || 'Desconocido';
-            const inicio = fechaBonita(ct.fecha_inicio);
-            const fin = fechaBonita(ct.fecha_fin);
+            const inicio = formatearFecha(ct.fecha_inicio);
+            const fin = formatearFecha(ct.fecha_fin);
 
             console.log(
                 chalk.white(`ID: ${ct.id}`) +
@@ -111,7 +58,7 @@ async function listarContratos() {
     }
 }
 
-async function verDetalleContrato() {
+export async function verDetalleContrato() {
     console.log(chalk.cyan('\nDetalle de contrato\n'));
 
     const { id } = await inquirer.prompt([
@@ -137,15 +84,15 @@ async function verDetalleContrato() {
         console.log(chalk.white(`Condiciones: ${ct.condiciones}`));
         console.log(chalk.white(`Duracion:    ${ct.duracion} semanas`));
         console.log(chalk.white(`Precio:      ${ct.precio}`));
-        console.log(chalk.white(`Inicio:      ${fechaBonita(ct.fecha_inicio)}`));
-        console.log(chalk.white(`Fin:         ${fechaBonita(ct.fecha_fin)}`));
+        console.log(chalk.white(`Inicio:      ${formatearFecha(ct.fecha_inicio)}`));
+        console.log(chalk.white(`Fin:         ${formatearFecha(ct.fecha_fin)}`));
         console.log(chalk.white(`Estado:      ${estado}`));
     } catch (error) {
         console.log(chalk.red(`\nError: ${error.message}`));
     }
 }
 
-async function cancelarContrato() {
+export async function cancelarContrato() {
     console.log(chalk.cyan('\nCancelar contrato\n'));
 
     const { id } = await inquirer.prompt([
@@ -184,7 +131,7 @@ async function cancelarContrato() {
     }
 }
 
-async function renovarContrato() {
+export async function renovarContrato() {
     console.log(chalk.cyan('\nRenovar contrato\n'));
 
     const { id } = await inquirer.prompt([
@@ -229,7 +176,7 @@ async function renovarContrato() {
     }
 }
 
-async function finalizarContrato() {
+export async function finalizarContrato() {
     console.log(chalk.cyan('\nFinalizar contrato\n'));
 
     const { id } = await inquirer.prompt([
@@ -268,7 +215,7 @@ async function finalizarContrato() {
     }
 }
 
-async function eliminarContrato() {
+export async function eliminarContrato() {
     console.log(chalk.cyan('\nEliminar contrato\n'));
 
     const { id } = await inquirer.prompt([
@@ -315,10 +262,4 @@ async function eliminarContrato() {
     } catch (error) {
         console.log(chalk.red(`\nError: ${error.message}`));
     }
-}
-
-async function pausar() {
-    await inquirer.prompt([
-        { type: 'input', name: '_', message: chalk.gray('Presiona ENTER para continuar...') }
-    ]);
 }

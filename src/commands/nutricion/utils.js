@@ -1,5 +1,9 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import { formatearFecha } from '../../utils/fechaUtils.js';
+
+const fechaBonita = formatearFecha;
+export { fechaBonita };
 
 export const CATEGORIAS = [
     { name: 'Carnes',      value: 1 },
@@ -11,17 +15,6 @@ export const CATEGORIAS = [
     { name: 'Suplementos', value: 7 },
     { name: 'Snacks',      value: 8 }
 ];
-
-export function fechaBonita(fecha) {
-    if (typeof fecha === 'string') {
-        return fecha.split('T')[0];
-    }
-    const d = new Date(fecha);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
 
 export function calcularSemana(fechaReferencia) {
     const fecha = new Date(fechaReferencia + 'T00:00:00');
@@ -35,8 +28,8 @@ export function calcularSemana(fechaReferencia) {
     domingo.setDate(lunes.getDate() + 6);
 
     return {
-        lunes: fechaBonita(lunes),
-        domingo: fechaBonita(domingo)
+        lunes: formatearFecha(lunes),
+        domingo: formatearFecha(domingo)
     };
 }
 
