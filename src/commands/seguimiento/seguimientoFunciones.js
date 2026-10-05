@@ -198,7 +198,7 @@ export async function clienteJson(){
     console.log(chalk.cyan('\nExportar cliente a JSON\n'));
 
     const { id_contrato } = await inquirer.prompt([
-        { type: 'input', name: 'id_contrato', message: 'ID del contrato que se quiere exportar :' }
+        { type: 'input', name: 'id_contrato', message: 'ID del contrato:' }
     ]);
 
     try {
@@ -207,11 +207,39 @@ export async function clienteJson(){
             console.log(chalk.red('\nContrato no encontrado.'));
             return;
         }
-        const cliente = await clienteService.buscarPorId(contrato.id_cliente);
-        const nombreCliente = cliente ? `${cliente.nombre} ${cliente.apellido}` : 'Desconocido';
-        console.log(chalk.gray(`Cliente del contrato: ${nombreCliente}\n`));
 
-        console.log(chalk.green(`\n cliente exportado correctamente.`));
+        const cliente = await clienteService.buscarPorId(contrato.id_cliente);
+        const plan = await planService.buscarPorId(contrato.id_plan);
+        const planAlimenticio = await PlanAlimenticioService.listarporContrato(contrato.id);
+        const consumoAlimento = await consumoAlimentoService.listarPorPlan(planAlimenticio.Id);
+        const nombreCliente = cliente ? `${cliente.nombre} ${cliente.apellido}` : 'Desconocido';
+        const nombrePlan = plan ? plan.nombre : 'Desconocido';
+
+        console.log(chalk.bold.white(`\nCliente: ${nombreCliente} | Plan: ${nombrePlan}\n`));
+
+        const registros = await segService.obtenerProgreso(id_contrato);
+
+        if (registros.length === 0) {
+            console.log(chalk.yellow('No hay registros de seguimiento para este contrato.'));
+            return;
+        }
+
+        registros.forEach((seg) => {
+            console.log(chalk.bold.cyan(`\n=== SEGUIMIENTO #${seg.id} (${formatearFecha(seg.fecha)}) ===`));
+            console.log(chalk.white(`Peso:        ${seg.peso} kg`));
+            console.log(chalk.white(`Grasa:       ${seg.grasa_corporal !== null ? seg.grasa_corporal + '%' : 'No registrada'}`));
+            console.log(chalk.white(`Comentarios: ${seg.comentarios || '-'}`));
+            console.log(chalk.white(`Foto:        ${seg.foto || '-'}`));
+
+            if (seg.medidas && seg.medidas.length > 0) {
+                console.log(chalk.gray('Medidas:'));
+                seg.medidas.forEach((m) => {
+                    console.log(chalk.gray(`   - ${m.tipo_medida}: ${m.valor} cm`));
+                });
+            } else {
+                console.log(chalk.gray('Sin medidas registradas.'));
+            }
+        });
     } catch (error) {
         console.log(chalk.red(`\nError: ${error.message}`));
     }
