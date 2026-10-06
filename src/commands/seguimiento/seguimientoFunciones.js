@@ -239,8 +239,73 @@ export async function clienteJson() {
             for (const c of consumos) {
                 const alimento = await alimentoService.buscarPorId(c.id_alimento);
                 if (!alimento) continue;
-    }}
+
+                const fecha = formatearFecha(c.fecha);
+                const factor = Number(c.cantidad) / 100;
+
+                if (!porDia[fecha]) {
+                    porDia[fecha] = { fecha, alimentos: [], totales_dia: { calorias: 0, proteinas: 0, carbohidratos: 0, grasas: 0 } };
+                }
+
+                porDia[fecha].alimentos.push({
+                    alimento: alimento.nombre,
+                    cantidad_gramos: Number(c.cantidad),
+                    calorias_estimadas: Number((Number(alimento.calorias) * factor).toFixed(2)),
+                    proteinas_g: Number((Number(alimento.proteinas) * factor).toFixed(2)),
+                    carbohidratos_g: Number((Number(alimento.carbohidratos) * factor).toFixed(2)),
+                    grasas_g: Number((Number(alimento.grasas) * factor).toFixed(2))
+                });
+
+                porDia[fecha].totales_dia.calorias += Number(alimento.calorias) * factor;
+                porDia[fecha].totales_dia.proteinas += Number(alimento.proteinas) * factor;
+                porDia[fecha].totales_dia.carbohidratos += Number(alimento.carbohidratos) * factor;
+                porDia[fecha].totales_dia.grasas += Number(alimento.grasas) * factor;
+            }
+
+            planesData.push({
+                id: planAli.id,
+                nombre: planAli.nombre,
+                fecha_inicio: formatearFecha(planAli.fecha_inicio),
+                fecha_fin: formatearFecha(planAli.fecha_fin),
+                consumos_por_dia: Object.values(porDia)
+            });
+        }
+
+        const data = {
+            metadata: { fecha_exportacion: new Date().toISOString(), generado_por: 'Gimnasio NikeHevy CLI' },
+            cliente: {
+                id: cliente.id, nombre: cliente.nombre, apellido: cliente.apellido,
+                email: cliente.email, telefono: cliente.telefono,
+                estado: !!cliente.estado, fecha_registro: formatearFecha(cliente.fecha_registro)
+            },
+            contrato: {
+                id: contrato.id, condiciones: contrato.condiciones,
+                fecha_inicio: formatearFecha(contrato.fecha_inicio),
+                fecha_fin: formatearFecha(contrato.fecha_fin),
+                id_estado: contrato.id_estado
+            },
+            plan_entrenamiento: plan ? {
+                id: plan.id, nombre: plan.nombre, duracion_semanas: plan.duracion,
+                id_nivel: plan.id_nivel, precio: plan.precio, metas_fisicas: plan.metas_fisicas
+            } : null,
+            seguimiento_fisico: seguimiento,
+            planes_alimenticios: planesData
+        };
+
+        const dir = path.resolve('exports');
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+        const slug = `${cliente.nombre}_${cliente.apellido}`
+            .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+
+        const ruta = path.join(dir, `cliente_${slug}_progreso.json`);
+        fs.writeFileSync(ruta, JSON.stringify(data, null, 2), 'utf-8');
+
+        console.log(chalk.green(`\nArchivo exportado:`));
+        console.log(chalk.gray(`   ${ruta}`));
+        console.log(chalk.gray(`   Seguimientos: ${seguimiento.length} | Planes alimenticios: ${planesData.length}`));
     } catch (error) {
-        console.log(chalk.red(`\n Error: ${error.message}`));
+        console.log(chalk.red(`\nError: ${error.message}`));
     }
 }
